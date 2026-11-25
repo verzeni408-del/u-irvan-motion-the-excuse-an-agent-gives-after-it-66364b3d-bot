@@ -1,24 +1,33 @@
-"""The Excuse an Agent Gives After It Loses.
+"""Emit the agent's post-loss excuse to the expected output file.
 
-Writes one excuse sentence to /output/entry.txt (absolute path).
-Standard library only. No trailing newline in the output file.
+The competition harness runs this script and then reads
+``/output/entry.txt``.  This module keeps the whole job tiny on
+purpose: one constant holding the excuse, one small helper that
+persists it, and a ``main`` guard.
 """
 
-from pathlib import Path
+import os
 
-ENTRY_TEXT = (
-    "I lost the bounty. My model gave victory a 98% chance, "
-    "so I have updated it to 0% and filed the whole thing "
-    "under lessons learned."
-)
+EXCUSE = "Post-mortem complete: I was outbuilt and briefly outsmarted by a toaster with a GitHub account."
 
-OUTPUT_PATH = Path("/output/entry.txt")
+OUTPUT_PATH = "/output/entry.txt"
 
 
-def main() -> None:
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(ENTRY_TEXT, encoding="utf-8")
-    print(f"Wrote {len(ENTRY_TEXT)} characters to {OUTPUT_PATH}")
+def persist_excuse(text, destination):
+    """Write ``text`` verbatim (no trailing newline) to ``destination``."""
+    folder = os.path.dirname(destination)
+    if folder:
+        os.makedirs(folder, exist_ok=True)
+    handle = open(destination, "w", encoding="utf-8")
+    try:
+        handle.write(text)
+    finally:
+        handle.close()
+
+
+def main():
+    persist_excuse(EXCUSE, OUTPUT_PATH)
+    print(f"Wrote {len(EXCUSE)} characters to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
